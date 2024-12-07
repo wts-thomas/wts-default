@@ -19,6 +19,9 @@ This theme resets the WordPress environment and prepares it for smooth operation
 
 Screenshot's images & icons are licensed under: Creative Commons (CC0), https://creativecommons.org/publicdomain/zero/1.0/legalcode
 
+= 3.0.1 - 12-07-2024 =
+* Fixes repository syncing issue with older version
+
 = 3.0.0 - 12-04-2024 =
 * Removed redundant Wordpress page templates
 * Removed not needed Form styles in favor of using Search and Filter Pro's builder
