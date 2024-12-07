@@ -659,6 +659,17 @@ function yoasttobottom() {
 add_filter( 'wpseo_metabox_prio', 'yoasttobottom');
 
 
+/*  SEO Framework
+__________________________________________*/
+
+add_filter(
+	'the_seo_framework_metabox_priority',
+	function () {
+		return 'low';
+	},
+);
+
+
 /*  Tablepress
 __________________________________________*/
 
