@@ -87,6 +87,13 @@
    --e-p-border-global-invert:#0c0d0e;
 } */
 
+#elementor-panel.elementor-panel.ui-resizable {
+   width: 500px !important;
+}
+#elementor-navigator {
+   width: 380px !important;
+}
+
 #elementor-panel-page-editor .e-ai-button,
 .elementor-control-fallback .e-ai-button,
 .elementor-control-field .e-ai-button,
