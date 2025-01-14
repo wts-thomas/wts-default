@@ -605,6 +605,9 @@ function eg_register_menus() {
          'content_altThr_menu' => __( 'Alternate Menu - 3' ),
          'content_altFou_menu' => __( 'Alternate Menu - 4' ),
          'content_altFiv_menu' => __( 'Alternate Menu - 5' ),
+         'content_altSix_menu' => __( 'Alternate Menu - 6' ),
+         'content_altSev_menu' => __( 'Alternate Menu - 7' ),
+         'content_altEig_menu' => __( 'Alternate Menu - 8' ),
     	)
 	);
 }
