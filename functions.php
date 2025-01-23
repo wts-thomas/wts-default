@@ -12,6 +12,9 @@ $myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
 //Set the branch that contains the stable release.
 $myUpdateChecker->setBranch('main');
 
+/* --------------------------------------------------------------------- */
+/* --------------------------------------------------------------------- */
+
 // Custom Admin Styles
 function my_admin_head() {
    // Check if we are in the WordPress admin and the user is logged in
@@ -30,7 +33,6 @@ function wpdocs_enqueue_custom_admin_script() {
 }
 // Set a high priority to ensure this runs late
 add_action('admin_enqueue_scripts', 'wpdocs_enqueue_custom_admin_script', 100);
-
 
 // Adds the Excerpt meta box for pages.
 add_post_type_support( 'page', 'excerpt' );
@@ -111,7 +113,6 @@ function filter_plugin_updates( $value ) {
    return $value;
 }
 add_filter( 'site_transient_update_plugins', 'filter_plugin_updates' );
-
 
 
 /* Removes Specific Admin Notices
