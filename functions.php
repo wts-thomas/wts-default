@@ -15,6 +15,12 @@ $myUpdateChecker->setBranch('main');
 /* --------------------------------------------------------------------- */
 /* --------------------------------------------------------------------- */
 
+
+
+/* --------------------------------------------------------------------- */
+/* --------------------------------------------------------------------- */
+
+
 // Custom Admin Styles
 function my_admin_head() {
    // Check if we are in the WordPress admin and the user is logged in
@@ -301,9 +307,10 @@ add_action('admin_head', 'custom_admin_css', 9999999);
 
 /*  HIDES ELEMENTOR PROMOTIONAL NOTICES
 ________________________________________________________________________*/
+
 function hide_elementor_notices() {
    echo '<style>
-       .e-notice {
+       .notice.e-notice.e-notice--dismissible.e-notice--extended {
            display: none !important;
        }
    </style>';
