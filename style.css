@@ -4,7 +4,7 @@ Theme URI: https://wtsks.com
 Author: WTS
 Author URI: https://wtsks.com
 Description: A plain-vanilla & lightweight theme for building out pages
-Version: 3.1.1
+Version: 3.1.2
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
@@ -77,10 +77,17 @@ body .full-height {
    pointer-events: auto; /* Re-enable pointer events */
 }
 
+/*	Video Containers 
+--------------------------------------------------------------- */
+
 .videoContainer,
 .videoContainer .e-hosted-video {
-   height: 100%;
+    position: relative;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
 }
+
 .videoContainer .elementor-video {
    position: absolute;
    top: 50%;
@@ -90,6 +97,18 @@ body .full-height {
    transform: translate(-50%, -50%);
    object-fit: cover;
 }
+
+/* Specific styles for Chrome */
+/* @media screen and (-webkit-min-device-pixel-ratio:0) {
+   .videoContainer .elementor-video {
+      position: relative;
+      top: 0;
+      left: 0;
+      height: 100vh !important;
+      width: auto;
+      transform: none;
+   }
+} */
 
 /* ------------------------------------------------------------
 	FONTS
