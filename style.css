@@ -4,7 +4,7 @@ Theme URI: https://wtsks.com
 Author: WTS
 Author URI: https://wtsks.com
 Description: A plain-vanilla & lightweight theme for building out pages
-Version: 3.1.2
+Version: 3.1.3
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
@@ -377,12 +377,12 @@ body:not(.elementor-editor-active) .e-con {
 /*  HEADER SCROLL MOVEMENTS
 ________________________________________________________________________*/
 
-.headerDiv-move {
+.elementor-element .headerDiv-move {
    position: relative;
    top: 0px;
    transition: 0.75s;
 }
-.headerDiv-move-up {
+.elementor-element .headerDiv-move-up {
   position: relative;
   top: -350px;
   transition: 0.75s;

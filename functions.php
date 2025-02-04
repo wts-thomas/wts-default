@@ -20,7 +20,6 @@ $myUpdateChecker->setBranch('main');
 /* --------------------------------------------------------------------- */
 /* --------------------------------------------------------------------- */
 
-
 // Custom Admin Styles
 function my_admin_head() {
    // Check if we are in the WordPress admin and the user is logged in
@@ -42,12 +41,6 @@ add_action('admin_enqueue_scripts', 'wpdocs_enqueue_custom_admin_script', 100);
 
 // Adds the Excerpt meta box for pages.
 add_post_type_support( 'page', 'excerpt' );
-
-// Disables WordPress Autosave
-add_action( 'admin_init', 'disable_autosave' );
-   function disable_autosave() {
-   wp_deregister_script( 'autosave' );
-}
 
 // Adds Title support for pages
 function title_theme_slug_setup() {
@@ -178,7 +171,6 @@ add_action( 'do_feed_rss2', 'aioo_crunchify_perf_disable_feed', 1 );
 add_action( 'do_feed_atom', 'aioo_crunchify_perf_disable_feed', 1 );
 add_action( 'do_feed_rss2_comments', 'aioo_crunchify_perf_disable_feed', 1 );
 add_action( 'do_feed_atom_comments', 'aioo_crunchify_perf_disable_feed', 1 );
-
 add_action( 'feed_links_show_posts_feed', '__return_false', - 1 );
 add_action( 'feed_links_show_comments_feed', '__return_false', - 1 );
 remove_action( 'wp_head', 'feed_links', 2 );
@@ -187,7 +179,6 @@ remove_action( 'wp_head', 'feed_links_extra', 3 );
 // REMOVE WP EMOJI
 remove_action('wp_head', 'print_emoji_detection_script', 7);
 remove_action('wp_print_styles', 'print_emoji_styles');
-
 remove_action( 'admin_print_scripts', 'print_emoji_detection_script' );
 remove_action( 'admin_print_styles', 'print_emoji_styles' );
 
@@ -318,385 +309,6 @@ function hide_elementor_notices() {
 add_action('admin_head', 'hide_elementor_notices');
 
 
-/*  ELEMENTOR, CUSTOM SHAPE DIVIDERS
-________________________________________________________________________*/
-
-function custom_elementor_shape_dividers( $additional_shapes ) {
-
-	$additional_shapes['shape-divider-1'] = [
-		'title'        => esc_html__( 'Slashes', 'textdomain' ),
-		'url'          => get_stylesheet_directory_uri() . '/assets/shapes/section-divider_slashes.svg',
-		'path'         => get_stylesheet_directory() . '/assets/shapes/section-divider_slashes.svg',
-		'height_only'  => false,
-	];
-
-	return $additional_shapes;
-
-}
-add_filter( 'elementor/shapes/additional_shapes', 'custom_elementor_shape_dividers' );
-
-
-/*  ADMIN DASHBOARD LINKS
-________________________________________________________________________*/
-
-// Remove Admin features from Dashboard excluding WTS users
-
-// Add the checkbox setting to the General settings page
-function wts_add_admin_features_checkbox() {
-   add_settings_field(
-       'wts_disable_admin_features_removal',
-       'Enable Admin Features',
-       'wts_render_admin_features_checkbox',
-       'general'
-   );
-   
-   register_setting('general', 'wts_disable_admin_features_removal');
-}
-
-function wts_render_admin_features_checkbox() {
-   // Retrieve the current value of the setting
-   $disable_removal = get_option('wts_disable_admin_features_removal');
-   ?>
-   <input type="checkbox" name="wts_disable_admin_features_removal" value="1" <?php checked(1, $disable_removal); ?>> Shows Admin Features for non WTS Users
-   <?php
-}
-
-// Conditionally remove menu items based on the checkbox setting
-function wts_conditional_remove_menus() {
-   $disable_removal = get_option('wts_disable_admin_features_removal');
-
-   // Only execute the menu removal if the checkbox is not checked
-   if (!$disable_removal) {
-       wts_remove_menus();
-   }
-}
-
-// Original function to remove admin features
-function wts_remove_menus() { 
-  $current_user = wp_get_current_user(); 
-  if (strpos($current_user->user_email, '@wtsks.com') === false) { 
-     // List of menu pages to remove
-     remove_submenu_page('index.php', 'update-core.php');
-     remove_menu_page('themes.php');                             
-     remove_menu_page('plugins.php');                           
-     remove_menu_page('tools.php');                             
-     remove_menu_page('options-general.php');                   
-     remove_menu_page('edit.php?post_type=acf-field-group');
-     remove_menu_page('cptui_main_menu');                       
-     remove_menu_page('snippets');                              
-     remove_menu_page('elementor');                             
-     remove_menu_page('edit.php?post_type=elementor_library');
-     remove_submenu_page('edit.php?post_type=elementor_library', 'edit.php?post_type=elementor_library&tabs_group=popup&elementor_library_type=popup');
-     remove_menu_page('dce-features');
-     remove_menu_page('search-filter');
-     remove_menu_page('wp-mail-smtp');
-     remove_menu_page('itsec');
-     remove_menu_page('wpseo_dashboard');
-  }
-}
-
-// Hook the functions to appropriate WordPress actions
-add_action('admin_init', 'wts_add_admin_features_checkbox');
-add_action('admin_init', 'wts_conditional_remove_menus', 9999);
-
-
-/*  HIDE FOR NON WTS USERS WITH CHECKBOX SHOW
-_____________________________________________________________________*/
-
-// Add the checkbox setting to the General settings page for Gravity Forms
-function wts_add_gravity_forms_visibility_checkbox() {
-   add_settings_field(
-       'wts_show_gravity_forms', // Option ID
-       'Gravity Forms Admin Menu', // Label for the checkbox
-       'wts_render_gravity_forms_visibility_checkbox', // Callback to render the checkbox
-       'general' // Settings page (general)
-   );
-   
-   register_setting('general', 'wts_show_gravity_forms'); // Register the setting
-}
-
-function wts_render_gravity_forms_visibility_checkbox() {
-   // Retrieve the current value of the setting
-   $show_gravity_forms = get_option('wts_show_gravity_forms');
-   ?>
-   <input type="checkbox" name="wts_show_gravity_forms" value="1" <?php checked(1, $show_gravity_forms); ?>> Show Gravity Forms Admin Menu for non WTS Users
-   <?php
-}
-
-// Conditionally hide or show Gravity Forms menu based on the checkbox setting
-function wts_conditional_hide_gravity_forms_menu() {
-   $show_gravity_forms = get_option('wts_show_gravity_forms');
-   $current_user = wp_get_current_user();
-
-   // If the user is not from WTS and the checkbox is unchecked, hide Gravity Forms
-   if (strpos($current_user->user_email, '@wtsks.com') === false && !$show_gravity_forms) {
-       remove_menu_page('gf_edit_forms'); // Gravity Forms admin menu slug
-   }
-}
-
-// Hook the new functions to appropriate WordPress actions
-add_action('admin_init', 'wts_add_gravity_forms_visibility_checkbox'); // To add the checkbox
-add_action('admin_menu', 'wts_conditional_hide_gravity_forms_menu', 9999); // To hide/show Gravity Forms menu
-
-
-/*  HIDE COMMENTS MENU WITH CHECKBOX SHOW/HIDE
-_____________________________________________________________________*/
-
-// Add the checkbox setting to the General settings page for Comments
-function wts_add_comments_visibility_checkbox() {
-   add_settings_field(
-       'wts_hide_comments', // Option ID
-       'Comments Admin Menu', // Label for the checkbox
-       'wts_render_comments_visibility_checkbox', // Callback to render the checkbox
-       'general' // Settings page (general)
-   );
-   
-   register_setting('general', 'wts_hide_comments'); // Register the setting
-}
-
-function wts_render_comments_visibility_checkbox() {
-   // Retrieve the current value of the setting
-   $hide_comments = get_option('wts_hide_comments');
-   ?>
-   <input type="checkbox" name="wts_hide_comments" value="1" <?php checked(1, $hide_comments); ?>> Hide Comments Admin Menu for all users
-   <?php
-}
-
-// Conditionally hide or show Comments menu based on the checkbox setting
-function wts_conditional_hide_comments_menu() {
-   $hide_comments = get_option('wts_hide_comments');
-
-   // If the checkbox is checked, hide Comments for all users
-   if ($hide_comments) {
-       remove_menu_page('edit-comments.php'); // Comments admin menu slug
-   }
-}
-
-// Hook the new functions to appropriate WordPress actions
-add_action('admin_init', 'wts_add_comments_visibility_checkbox'); // To add the checkbox
-add_action('admin_menu', 'wts_conditional_hide_comments_menu', 9999); // To hide/show Comments menu
-
-
-/*  REMOVE DASHBOARD META BOXES
-_____________________________________________________________________*/
-
-function remove_dashboard_widgets() {
-   remove_action( 'welcome_panel', 'wp_welcome_panel' );
-   remove_meta_box( 'dashboard_right_now', 'dashboard', 'normal' );
-   remove_meta_box( 'dashboard_activity', 'dashboard', 'normal' );
-   remove_meta_box( 'dashboard_quick_press', 'dashboard', 'side' );
-   remove_meta_box( 'dashboard_primary', 'dashboard', 'side' );
-   remove_meta_box( 'dashboard_site_health', 'dashboard', 'normal' );
-   remove_meta_box( 'e-dashboard-overview', 'dashboard', 'normal' );
-}
-add_action( 'wp_dashboard_setup', 'remove_dashboard_widgets' );
-
-
-/*  DASHBOARD META BOXES - DEFAULT SCREEN OPTIONS
-________________________________________________________________________*/
-
-// Hides the other screen option meta boxes.
-// Boxes can be activated at any time by the user via Screen Options dropdown.
-
-add_filter( 'hidden_meta_boxes', 'custom_hidden_meta_boxes' );
-function custom_hidden_meta_boxes( $hidden ) {
-//  $hidden[] = 'dashboard_primary';
-    $hidden[] = 'rg_forms_dashboard';
-    return $hidden;
-}
-
-
-/*  ASYNC FUNCTION FOR SCRIPTS - ENQUEUED BELOW
-________________________________________________________________________*/
-
-function site_async_scripts($url)
-{
-    if ( strpos( $url, '#asyncload') === false )
-        return $url;
-    else if ( is_admin() )
-        return str_replace( '#asyncload', '', $url );
-    else
-	return str_replace( '#asyncload', '', $url )."' async='async"; 
-    }
-add_filter( 'clean_url', 'site_async_scripts', 11, 1 );
-
-// add "#asyncload" to the end of the js file name. I.E. nameoffile-morename.js#asyncload
-
-
-/*  LOAD THEME STYLES AND SCRIPTS
-________________________________________________________________________*/
-
-function add_theme_enqueues() {
-	wp_enqueue_style( 'style', get_stylesheet_uri() );
-	wp_deregister_script('jquery');
-	wp_enqueue_script( 'jquery', 'https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js', array(), '3.6.3', false);
-   wp_enqueue_script( 'viewportHeight', get_template_directory_uri() . '/js/viewportHeight.js#asyncload', array ( 'jquery' ), 1, true);
-   wp_enqueue_script( 'responsiveTables', get_template_directory_uri() . '/js/responsiveTables.js#asyncload', array ( 'jquery' ), 1, true);
-   wp_enqueue_script( 'jquery.matchHeight', get_template_directory_uri() . '/js/jquery.matchHeight.js#asyncload', array ( 'jquery' ), 1, false);
-   wp_enqueue_script( 'scrolltoHide', get_template_directory_uri() . '/js/scrolltoHide.js#asyncload', array ( 'jquery' ), 1, false);
-}
-add_action( 'wp_enqueue_scripts', 'add_theme_enqueues' );
-
-
-// DEFER RECAPTCHA
-add_filter( 'clean_url', function( $url )
-{
-    if ( FALSE === strpos( $url, 'www.google.com/recaptcha/api.js' ) )
-    { // not our file
-        return $url;
-    }
-    // Must be a ', not "!
-    return "$url' defer='defer";
-}, 11, 1 );
-
-
-/*  SVG IMAGES
-________________________________________________________________________*/
-// NOTE: SVG width and height functions are not required since we're using Elementor and its' SVG upload to media library functions.
-
-/*  Allows the use of SVGs to be uploaded to the Media Library
-________________________________________________________________________*/
-
-define( 'ALLOW_UNFILTERED_UPLOADS', true );
-
-function cc_mime_types($mimes) {
-  $mimes['svg'] = 'image/svg+xml';
-  return $mimes;
-}
-add_filter('upload_mimes', 'cc_mime_types');
-
-
-/*  LOADS ELEMENTOR TO TEMPLATE PAGES
-________________________________________________________________________*/
-
-function theme_prefix_register_elementor_locations( $elementor_theme_manager ) {
-	$elementor_theme_manager->register_all_core_location();
-
-}
-add_action( 'elementor/theme/register_locations', 'theme_prefix_register_elementor_locations' );
-
-
-/*  SUPPORT CONATACT CARD
-________________________________________________________________________*/
-
-function custom_dashboard_help() {
-   echo '
-   <div style="text-align:center;">
-       <a href="https://wtsks.com/help/" title="Contact WTS" target="_blank">
-           <img src="'.get_template_directory_uri().'/img/wts-logo_whiteback.png" alt="WTS" style="max-width:100%;width:80%;height:auto;margin:20px auto;">
-       </a>
-   </div>
-   <p>
-      Contact <a href="https://wtsks.com/help/" title="Contact WTS" target="_blank">Contact WTS</a> with questions, troubleshooting, edit for requests or alterations, or misc support you have with your custom built website.
-   </p>
-   <p><strong><a href="https://wtsks.com/help/" title="Contact WTS" target="_blank">Contact WTS</a></strong></p>
-   ';
-}
-function wts_custom_dashboard_widgets() {
-   global $wp_meta_boxes;
-   wp_add_dashboard_widget('custom_help_widget', 'Website Support', 'custom_dashboard_help');
-}
-add_action('wp_dashboard_setup', 'wts_custom_dashboard_widgets');
-
-
-/*  NAVIGATION
-________________________________________________________________________*/
-
-function eg_register_menus() {
-	register_nav_menus(
-  		array(
-			'header_nav_menu' => __( 'Header Menu' ),
-         'header_addnav_menu' => __( 'Additional Header Menu' ),
-			'footer_nav_menu' => __( 'Footer Menu' ),
-         'footer_addnav_menu' => __( 'Additional Footer Menu' ),
-         'footer_alt_menu' => __( 'Alternate Menu' ),
-         'content_altTwo_menu' => __( 'Alternate Menu - 2' ),
-         'content_altThr_menu' => __( 'Alternate Menu - 3' ),
-         'content_altFou_menu' => __( 'Alternate Menu - 4' ),
-         'content_altFiv_menu' => __( 'Alternate Menu - 5' ),
-         'content_altSix_menu' => __( 'Alternate Menu - 6' ),
-         'content_altSev_menu' => __( 'Alternate Menu - 7' ),
-         'content_altEig_menu' => __( 'Alternate Menu - 8' ),
-    	)
-	);
-}
-add_action( 'init', 'eg_register_menus' );
-
-
-function cleanname($v) {
-$v = preg_replace('/[^a-zA-Z0-9s]/', '', $v);
-$v = str_replace(' ', '-', $v);
-$v = strtolower($v);
-return $v;
-}
-
-
-/*  WIDGETS
-________________________________________________________________________*/
-
-function wtstheme_sidebar() {
-	register_sidebar(
-		array (
-			'name' => __( 'Default Sidebar', 'wts-elementor-default' ),
-			'id' => 'custom_sidebar_01',
-			'description' => __( 'Custom sidebar that can be used with Elementor templates.', 'wts-elementor-default' ),
-			'before_widget' => '<div class="widget-content">',
-			'after_widget' => "</div>",
-		)
-	);
-}
-add_action( 'widgets_init', 'wtstheme_sidebar' );
-
-// Does not show Widget titles on page
-add_filter('widget_title','my_widget_title'); 
-function my_widget_title($t)
-{
-   return null;
-}
-
-
-/*  PLUGIN EDITS
-________________________________________________________________________*/
-
-/*  Yoast
-__________________________________________*/
-
-// Disable Yoast SEO Primary Category Feature
-add_filter( 'wpseo_primary_term_taxonomies', '__return_false' );
-
-// Moves Yoast below Content Editor
-function yoasttobottom() {
-  return 'low';
-}
-add_filter( 'wpseo_metabox_prio', 'yoasttobottom');
-
-
-/*  SEO Framework
-__________________________________________*/
-
-add_filter(
-	'the_seo_framework_metabox_priority',
-	function () {
-		return 'low';
-	},
-);
-
-
-/*  Tablepress
-__________________________________________*/
-
-// Removes the Tablepress Admin links on site
-add_filter( 'tablepress_edit_link_below_table', '__return_false' );
-
-
-/*  GRAVITY FORMS
-__________________________________________*/
-
-// keeps the viewer at the form to read the confirmation message
-// instead of having to scroll to message
-add_filter( 'gform_confirmation_anchor', '__return_true' );
-
-
 /*  HIDE, EDIT WITH ELEMENTOR BUTTON(S)
 ________________________________________________________________________*/
 
@@ -813,22 +425,389 @@ function hide_elementor_notices_links() {
    }
 }
 
-// Hook the new checkbox to the admin settings
 add_action('admin_init', 'add_elementor_page_view_checkbox');
-
-// Hook to the admin page to apply JavaScript changes
 add_action('admin_head', 'hide_elementor_notices_links');
+
+
+/*  HIDE COMMENTS MENU WITH CHECKBOX SHOW/HIDE
+_____________________________________________________________________*/
+
+// Add the checkbox setting to the General settings page for Comments
+function wts_add_comments_visibility_checkbox() {
+   add_settings_field(
+       'wts_hide_comments', // Option ID
+       'Comments Admin Menu', // Label for the checkbox
+       'wts_render_comments_visibility_checkbox', // Callback to render the checkbox
+       'general' // Settings page (general)
+   );
+   
+   register_setting('general', 'wts_hide_comments'); // Register the setting
+}
+
+function wts_render_comments_visibility_checkbox() {
+   // Retrieve the current value of the setting
+   $hide_comments = get_option('wts_hide_comments');
+   ?>
+   <input type="checkbox" name="wts_hide_comments" value="1" <?php checked(1, $hide_comments); ?>> Hide Comments Admin Menu for all users
+   <?php
+}
+
+// Conditionally hide or show Comments menu based on the checkbox setting
+function wts_conditional_hide_comments_menu() {
+   $hide_comments = get_option('wts_hide_comments');
+
+   // If the checkbox is checked, hide Comments for all users
+   if ($hide_comments) {
+       remove_menu_page('edit-comments.php'); // Comments admin menu slug
+   }
+}
+
+// Hook the new functions to appropriate WordPress actions
+add_action('admin_init', 'wts_add_comments_visibility_checkbox'); // To add the checkbox
+add_action('admin_menu', 'wts_conditional_hide_comments_menu', 9999); // To hide/show Comments menu
+
+
+/*  ADMIN DASHBOARD LINKS
+________________________________________________________________________*/
+// Remove Admin features from Dashboard excluding WTS users
+
+// Add the checkbox setting to the General settings page
+function wts_add_admin_features_checkbox() {
+   add_settings_field(
+       'wts_disable_admin_features_removal',
+       'Enable Admin Features',
+       'wts_render_admin_features_checkbox',
+       'general'
+   );
+   register_setting('general', 'wts_disable_admin_features_removal');
+}
+
+function wts_render_admin_features_checkbox() {
+   // Retrieve the current value of the setting
+   $disable_removal = get_option('wts_disable_admin_features_removal');
+   ?>
+   <input type="checkbox" name="wts_disable_admin_features_removal" value="1" <?php checked(1, $disable_removal); ?>> Shows Admin Features for non WTS Users
+   <?php
+}
+
+// Conditionally remove menu items based on the checkbox setting
+function wts_conditional_remove_menus() {
+   $disable_removal = get_option('wts_disable_admin_features_removal');
+
+   // Only execute the menu removal if the checkbox is not checked
+   if (!$disable_removal) {
+       wts_remove_menus();
+   }
+}
+
+// Original function to remove admin features
+function wts_remove_menus() { 
+  $current_user = wp_get_current_user(); 
+  if (strpos($current_user->user_email, '@wtsks.com') === false) { 
+     // List of menu pages to remove
+     remove_submenu_page('index.php', 'update-core.php');
+     remove_menu_page('themes.php');                             
+     remove_menu_page('plugins.php');                           
+     remove_menu_page('tools.php');                             
+     remove_menu_page('options-general.php');                   
+     remove_menu_page('edit.php?post_type=acf-field-group');
+     remove_menu_page('cptui_main_menu');                       
+     remove_menu_page('snippets');                              
+     remove_menu_page('elementor');                             
+     remove_menu_page('edit.php?post_type=elementor_library');
+     remove_submenu_page('edit.php?post_type=elementor_library', 'edit.php?post_type=elementor_library&tabs_group=popup&elementor_library_type=popup');
+     remove_menu_page('dce-features');
+     remove_menu_page('search-filter');
+     remove_menu_page('wp-mail-smtp');
+     remove_menu_page('itsec');
+     remove_menu_page('wpseo_dashboard');
+  }
+}
+
+// Hook the functions to appropriate WordPress actions
+add_action('admin_init', 'wts_add_admin_features_checkbox');
+add_action('admin_init', 'wts_conditional_remove_menus', 9999);
+
+
+/*  SHOW GRAVITY FORMS FOR USERS WITH CHECKBOX
+_____________________________________________________________________*/
+
+// Add the checkbox setting to the General settings page for Gravity Forms
+function wts_add_gravity_forms_visibility_checkbox() {
+   add_settings_field(
+       'wts_show_gravity_forms', // Option ID
+       'Gravity Forms Admin Menu', // Label for the checkbox
+       'wts_render_gravity_forms_visibility_checkbox', // Callback to render the checkbox
+       'general' // Settings page (general)
+   );
+   
+   register_setting('general', 'wts_show_gravity_forms'); // Register the setting
+}
+
+function wts_render_gravity_forms_visibility_checkbox() {
+   // Retrieve the current value of the setting
+   $show_gravity_forms = get_option('wts_show_gravity_forms');
+   ?>
+   <input type="checkbox" name="wts_show_gravity_forms" value="1" <?php checked(1, $show_gravity_forms); ?>> Show Gravity Forms Admin Menu for non WTS Users
+   <?php
+}
+
+// Conditionally hide or show Gravity Forms menu based on the checkbox setting
+function wts_conditional_hide_gravity_forms_menu() {
+   $show_gravity_forms = get_option('wts_show_gravity_forms');
+   $current_user = wp_get_current_user();
+
+   // If the user is not from WTS and the checkbox is unchecked, hide Gravity Forms
+   if (strpos($current_user->user_email, '@wtsks.com') === false && !$show_gravity_forms) {
+       remove_menu_page('gf_edit_forms'); // Gravity Forms admin menu slug
+   }
+}
+
+// Hook the new functions to appropriate WordPress actions
+add_action('admin_init', 'wts_add_gravity_forms_visibility_checkbox'); // To add the checkbox
+add_action('admin_menu', 'wts_conditional_hide_gravity_forms_menu', 9999); // To hide/show Gravity Forms menu
+
+
+/*  REMOVE DASHBOARD META BOXES
+_____________________________________________________________________*/
+
+function remove_dashboard_widgets() {
+   remove_action( 'welcome_panel', 'wp_welcome_panel' );
+   remove_meta_box( 'dashboard_right_now', 'dashboard', 'normal' );
+   remove_meta_box( 'dashboard_activity', 'dashboard', 'normal' );
+   remove_meta_box( 'dashboard_quick_press', 'dashboard', 'side' );
+   remove_meta_box( 'dashboard_primary', 'dashboard', 'side' );
+   remove_meta_box( 'dashboard_site_health', 'dashboard', 'normal' );
+   remove_meta_box( 'e-dashboard-overview', 'dashboard', 'normal' );
+}
+add_action( 'wp_dashboard_setup', 'remove_dashboard_widgets' );
+
+
+/*  DASHBOARD META BOXES - DEFAULT SCREEN OPTIONS
+________________________________________________________________________*/
+
+// Hides the other screen option meta boxes.
+// Boxes can be activated at any time by the user via Screen Options dropdown.
+
+add_filter( 'hidden_meta_boxes', 'custom_hidden_meta_boxes' );
+function custom_hidden_meta_boxes( $hidden ) {
+//  $hidden[] = 'dashboard_primary';
+    $hidden[] = 'rg_forms_dashboard';
+    return $hidden;
+}
+
+
+/*  ASYNC FUNCTION FOR SCRIPTS - ENQUEUED BELOW
+________________________________________________________________________*/
+
+function site_async_scripts($url)
+{
+    if ( strpos( $url, '#asyncload') === false )
+        return $url;
+    else if ( is_admin() )
+        return str_replace( '#asyncload', '', $url );
+    else
+	return str_replace( '#asyncload', '', $url )."' async='async"; 
+    }
+add_filter( 'clean_url', 'site_async_scripts', 11, 1 );
+
+// add "#asyncload" to the end of the js file name. I.E. nameoffile-morename.js#asyncload
+
+
+/*  LOAD THEME STYLES AND SCRIPTS
+________________________________________________________________________*/
+
+function add_theme_enqueues() {
+	wp_enqueue_style( 'style', get_stylesheet_uri() );
+	wp_deregister_script('jquery');
+	wp_enqueue_script( 'jquery', 'https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js', array(), '3.6.3', false);
+   wp_enqueue_script( 'viewportHeight', get_template_directory_uri() . '/js/viewportHeight.js#asyncload', array ( 'jquery' ), 1, true);
+   wp_enqueue_script( 'responsiveTables', get_template_directory_uri() . '/js/responsiveTables.js#asyncload', array ( 'jquery' ), 1, true);
+   wp_enqueue_script( 'jquery.matchHeight', get_template_directory_uri() . '/js/jquery.matchHeight.js#asyncload', array ( 'jquery' ), 1, false);
+   wp_enqueue_script( 'scrolltoHide', get_template_directory_uri() . '/js/scrolltoHide.js#asyncload', array ( 'jquery' ), 1, false);
+}
+add_action( 'wp_enqueue_scripts', 'add_theme_enqueues' );
+
+// DEFER RECAPTCHA
+add_filter( 'clean_url', function( $url )
+{
+    if ( FALSE === strpos( $url, 'www.google.com/recaptcha/api.js' ) )
+    { // not our file
+        return $url;
+    }
+    // Must be a ', not "!
+    return "$url' defer='defer";
+}, 11, 1 );
+
+
+/*  SVG IMAGES
+________________________________________________________________________*/
+// NOTE: SVG width and height functions are not required since we're 
+// using Elementor and its' SVG upload to media library functions.
+
+/*  Allows the use of SVGs to be uploaded to the Media Library
+________________________________________________________________________*/
+
+define( 'ALLOW_UNFILTERED_UPLOADS', true );
+
+function cc_mime_types($mimes) {
+  $mimes['svg'] = 'image/svg+xml';
+  return $mimes;
+}
+add_filter('upload_mimes', 'cc_mime_types');
+
+
+/*  LOADS ELEMENTOR TO TEMPLATE PAGES
+________________________________________________________________________*/
+
+function theme_prefix_register_elementor_locations( $elementor_theme_manager ) {
+	$elementor_theme_manager->register_all_core_location();
+
+}
+add_action( 'elementor/theme/register_locations', 'theme_prefix_register_elementor_locations' );
+
+
+/*  SUPPORT CONATACT CARD
+________________________________________________________________________*/
+
+function custom_dashboard_help() {
+   echo '
+   <div style="text-align:center;">
+       <a href="https://wtsks.com/help/" title="Contact WTS" target="_blank">
+           <img src="'.get_template_directory_uri().'/img/wts-logo_whiteback.png" alt="WTS" style="max-width:100%;width:80%;height:auto;margin:20px auto;">
+       </a>
+   </div>
+   <p>
+      Contact <a href="https://wtsks.com/help/" title="Contact WTS" target="_blank">Contact WTS</a> with questions, troubleshooting, edit for requests or alterations, or misc support you have with your custom built website.
+   </p>
+   <p><strong><a href="https://wtsks.com/help/" title="Contact WTS" target="_blank">Contact WTS</a></strong></p>
+   ';
+}
+function wts_custom_dashboard_widgets() {
+   global $wp_meta_boxes;
+   wp_add_dashboard_widget('custom_help_widget', 'Website Support', 'custom_dashboard_help');
+}
+add_action('wp_dashboard_setup', 'wts_custom_dashboard_widgets');
+
+
+/*  NAVIGATION
+________________________________________________________________________*/
+
+function eg_register_menus() {
+	register_nav_menus(
+  		array(
+			'header_nav_menu' => __( 'Header Menu' ),
+         'header_addnav_menu' => __( 'Additional Header Menu' ),
+			'footer_nav_menu' => __( 'Footer Menu' ),
+         'footer_addnav_menu' => __( 'Additional Footer Menu' ),
+         'footer_alt_menu' => __( 'Alternate Menu' ),
+         'content_altTwo_menu' => __( 'Alternate Menu - 2' ),
+         'content_altThr_menu' => __( 'Alternate Menu - 3' ),
+         'content_altFou_menu' => __( 'Alternate Menu - 4' ),
+         'content_altFiv_menu' => __( 'Alternate Menu - 5' ),
+         'content_altSix_menu' => __( 'Alternate Menu - 6' ),
+         'content_altSev_menu' => __( 'Alternate Menu - 7' ),
+         'content_altEig_menu' => __( 'Alternate Menu - 8' ),
+    	)
+	);
+}
+add_action( 'init', 'eg_register_menus' );
+
+function cleanname($v) {
+$v = preg_replace('/[^a-zA-Z0-9s]/', '', $v);
+$v = str_replace(' ', '-', $v);
+$v = strtolower($v);
+return $v;
+}
+
+
+/*  WIDGETS
+________________________________________________________________________*/
+
+function wtstheme_sidebar() {
+	register_sidebar(
+		array (
+			'name' => __( 'Default Sidebar', 'wts-elementor-default' ),
+			'id' => 'custom_sidebar_01',
+			'description' => __( 'Custom sidebar that can be used with Elementor templates.', 'wts-elementor-default' ),
+			'before_widget' => '<div class="widget-content">',
+			'after_widget' => "</div>",
+		)
+	);
+}
+add_action( 'widgets_init', 'wtstheme_sidebar' );
+
+// Does not show Widget titles on page
+add_filter('widget_title','my_widget_title'); 
+function my_widget_title($t)
+{
+   return null;
+}
+
+
+/*  PLUGIN EDITS
+________________________________________________________________________*/
+
+/*  Yoast
+__________________________________________*/
+// Disable Yoast SEO Primary Category Feature
+
+add_filter( 'wpseo_primary_term_taxonomies', '__return_false' );
+
+// Moves Yoast below Content Editor
+function yoasttobottom() {
+  return 'low';
+}
+add_filter( 'wpseo_metabox_prio', 'yoasttobottom');
+
+/*  SEO Framework
+__________________________________________*/
+
+add_filter(
+	'the_seo_framework_metabox_priority',
+	function () {
+		return 'low';
+	},
+);
+
+/*  Tablepress
+__________________________________________*/
+// Removes the Tablepress Admin links on site
+
+add_filter( 'tablepress_edit_link_below_table', '__return_false' );
+
+/*  GRAVITY FORMS
+__________________________________________*/
+// keeps the viewer at the form to read the confirmation message
+// instead of having to scroll to message
+
+add_filter( 'gform_confirmation_anchor', '__return_true' );
 
 
 /*  ELEMENTOR QUERIES - USING QUERY ID'S
 ________________________________________________________________________*/
-
 // Child Page(s) - use: 'child_pages'
+
 function child_pages_query_callback( $query ) {
    global $post;
    $query->set( 'post_parent', $post->ID );
 }
 add_action( 'elementor/query/child_pages', 'child_pages_query_callback' );
+
+
+/*  ELEMENTOR, CUSTOM SHAPE DIVIDERS
+________________________________________________________________________*/
+
+function custom_elementor_shape_dividers( $additional_shapes ) {
+	$additional_shapes['shape-divider-1'] = [
+		'title'        => esc_html__( 'Slashes', 'textdomain' ),
+		'url'          => get_stylesheet_directory_uri() . '/assets/shapes/section-divider_slashes.svg',
+		'path'         => get_stylesheet_directory() . '/assets/shapes/section-divider_slashes.svg',
+		'height_only'  => false,
+	];
+	return $additional_shapes;
+}
+add_filter( 'elementor/shapes/additional_shapes', 'custom_elementor_shape_dividers' );
 
 
 /* THIS IS THE END                                                       */
