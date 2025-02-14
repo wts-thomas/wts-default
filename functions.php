@@ -144,15 +144,6 @@ add_action('admin_head', 'hide_specific_admin_notices');
 /*  Performance & Security Edits
 _____________________________________________________________________*/
 
-// REMOVES THE WORDPRESS VERSION NUMBER
-remove_action('wp_head', 'wp_generator');
-
-// REMOVE WLWMANIFEST
-remove_action('wp_head', 'wlwmanifest_link');
-
-// REMOVE RSD
-remove_action('wp_head', 'rsd_link');
-
 // CANCELS AUTO UPDATES FOR PLUGINS AND THEMES
 add_filter( 'auto_update_plugin', '__return_false' );
 add_filter( 'auto_update_theme', '__return_false' );
@@ -162,70 +153,6 @@ add_filter( 'wp_lazy_loading_enabled', '__return_false' );
 
 // REMOVE AVATAR DONATION MESSAGE
 remove_action('wpua_donation_message', 'wpua_do_donation_message');
-
-// REMOVE RSS FEEDS AND LINKS
-add_action( 'do_feed', 'aioo_crunchify_perf_disable_feed', 1 );
-add_action( 'do_feed_rdf', 'aioo_crunchify_perf_disable_feed', 1 );
-add_action( 'do_feed_rss', 'aioo_crunchify_perf_disable_feed', 1 );
-add_action( 'do_feed_rss2', 'aioo_crunchify_perf_disable_feed', 1 );
-add_action( 'do_feed_atom', 'aioo_crunchify_perf_disable_feed', 1 );
-add_action( 'do_feed_rss2_comments', 'aioo_crunchify_perf_disable_feed', 1 );
-add_action( 'do_feed_atom_comments', 'aioo_crunchify_perf_disable_feed', 1 );
-add_action( 'feed_links_show_posts_feed', '__return_false', - 1 );
-add_action( 'feed_links_show_comments_feed', '__return_false', - 1 );
-remove_action( 'wp_head', 'feed_links', 2 );
-remove_action( 'wp_head', 'feed_links_extra', 3 );
-
-// REMOVE WP EMOJI
-remove_action('wp_head', 'print_emoji_detection_script', 7);
-remove_action('wp_print_styles', 'print_emoji_styles');
-remove_action( 'admin_print_scripts', 'print_emoji_detection_script' );
-remove_action( 'admin_print_styles', 'print_emoji_styles' );
-
-// REMOVE JQUERY MIGRATE
-function remove_jquery_migrate( $scripts ) {
-   if ( ! is_admin() && isset( $scripts->registered['jquery'] ) ) {
-        $script = $scripts->registered['jquery'];
-      if ( $script->deps ) { 
-      // Check whether the script has any dependencies
-         $script->deps = array_diff( $script->deps, array( 'jquery-migrate' ) );
-      }
-   }
- }
-add_action( 'wp_default_scripts', 'remove_jquery_migrate' );
-
-// REMOVES DASHICONS FOR NON-LOGGEDIN USERS
-add_action( 'wp_print_styles', 'wtsrets_dequeue_styles' );
-function wtsrets_dequeue_styles() { 
-    if ( ! is_user_logged_in() ) {
-        wp_dequeue_style( 'dashicons' );
-        wp_deregister_style( 'dashicons' );
-    }
-}
-
-// DEFERES CSS
-function defer_specific_css_files( $html, $handle ) {
-   $defer_handles = array( 'es-frontend', 'es-select2', 'font-awesome', 'swiper' );
-   
-       if ( in_array( $handle, $defer_handles ) ) {
-           return str_replace( "rel='stylesheet'", "rel='preload' as='style' onload=\"this.onload=null;this.rel='stylesheet'\"", $html );
-       }
-   
-       return $html;
-   }
-   add_filter( 'style_loader_tag', 'defer_specific_css_files', 10, 2 );
-
-// DEFERES JS
-function defer_specific_js_files( $tag, $handle ) {
-	$defer_handles = array( 'es-select2', 'es-datetime-picker' );
-
-    if ( in_array( $handle, $defer_handles ) ) {
-        return str_replace( ' src', ' defer src', $tag );
-    }
-
-    return $tag;
-}
-add_filter( 'script_loader_tag', 'defer_specific_js_files', 10, 2 );
 
 
 /*  Elementor Edits
@@ -597,23 +524,6 @@ function custom_hidden_meta_boxes( $hidden ) {
 }
 
 
-/*  ASYNC FUNCTION FOR SCRIPTS - ENQUEUED BELOW
-________________________________________________________________________*/
-
-function site_async_scripts($url)
-{
-    if ( strpos( $url, '#asyncload') === false )
-        return $url;
-    else if ( is_admin() )
-        return str_replace( '#asyncload', '', $url );
-    else
-	return str_replace( '#asyncload', '', $url )."' async='async"; 
-    }
-add_filter( 'clean_url', 'site_async_scripts', 11, 1 );
-
-// add "#asyncload" to the end of the js file name. I.E. nameoffile-morename.js#asyncload
-
-
 /*  LOAD THEME STYLES AND SCRIPTS
 ________________________________________________________________________*/
 
@@ -621,10 +531,10 @@ function add_theme_enqueues() {
 	wp_enqueue_style( 'style', get_stylesheet_uri() );
 	wp_deregister_script('jquery');
 	wp_enqueue_script( 'jquery', 'https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js', array(), '3.6.3', false);
-   wp_enqueue_script( 'viewportHeight', get_template_directory_uri() . '/js/viewportHeight.js#asyncload', array ( 'jquery' ), 1, true);
-   wp_enqueue_script( 'responsiveTables', get_template_directory_uri() . '/js/responsiveTables.js#asyncload', array ( 'jquery' ), 1, true);
-   wp_enqueue_script( 'jquery.matchHeight', get_template_directory_uri() . '/js/jquery.matchHeight.js#asyncload', array ( 'jquery' ), 1, false);
-   wp_enqueue_script( 'scrolltoHide', get_template_directory_uri() . '/js/scrolltoHide.js#asyncload', array ( 'jquery' ), 1, false);
+   wp_enqueue_script( 'viewportHeight', get_template_directory_uri() . '/js/viewportHeight.js', array ( 'jquery' ), 1, true);
+   wp_enqueue_script( 'responsiveTables', get_template_directory_uri() . '/js/responsiveTables.js', array ( 'jquery' ), 1, true);
+   wp_enqueue_script( 'jquery.matchHeight', get_template_directory_uri() . '/js/jquery.matchHeight.js', array ( 'jquery' ), 1, false);
+   wp_enqueue_script( 'scrolltoHide', get_template_directory_uri() . '/js/scrolltoHide.js', array ( 'jquery' ), 1, false);
 }
 add_action( 'wp_enqueue_scripts', 'add_theme_enqueues' );
 
