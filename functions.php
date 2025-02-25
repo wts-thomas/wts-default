@@ -448,6 +448,10 @@ function wts_remove_menus() {
      remove_menu_page('wp-mail-smtp');
      remove_menu_page('itsec');
      remove_menu_page('wpseo_dashboard');
+     remove_menu_page('theseoframework-settings');
+     remove_menu_page('tablepress');
+     remove_menu_page('uaepro');
+     remove_menu_page('dynamic-shortcodes');
   }
 }
 
