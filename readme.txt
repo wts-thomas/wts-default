@@ -4,7 +4,7 @@ Contributors: Thomas Rainer
 Requires at least: 6.0
 Tested up to: 6.5
 Stable tag: 2.8
-Version: 4.0.2
+Version: 4.1.1
 Requires PHP: 8.0
 JQuery: 3.6.3
 License: GNU General Public License v3 or later
@@ -18,6 +18,13 @@ A basic, plain-vanilla, lightweight theme, best suited for building your site us
 This theme resets the WordPress environment and prepares it for smooth operation of Elementor.
 
 Screenshot's images & icons are licensed under: Creative Commons (CC0), https://creativecommons.org/publicdomain/zero/1.0/legalcode
+
+= 4.1.1 - 10-06-2025 =
+* Hides Ally plugin upsell messages
+* Removes Responsive Tables Javascript
+
+= 4.1.0 - 03-26-2025 =
+* Force Elementor AI functionality to be disabled (unchecked)
 
 = 4.0.2 - 02-25-2025 =
 * Adjustments to the h margins in a page-content

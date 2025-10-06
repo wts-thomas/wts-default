@@ -280,6 +280,22 @@ add_action('admin_head-post.php', 'hide_elementor_button');
 add_action('admin_head-post-new.php', 'hide_elementor_button');
 
 
+/*  DISABLES THE CHECKBOX TO ENABLE ELEMENTOR AI
+________________________________________________________________________*/
+
+function update_current_user_elementor_ai_setting() {
+   $user_id = get_current_user_id();
+   if ( ! $user_id ) {
+       return;
+   }
+   // If the option is not already '0', update it.
+   if ( '0' !== get_user_option( 'elementor_enable_ai', $user_id ) ) {
+       update_user_option( $user_id, 'elementor_enable_ai', '0' );
+   }
+}
+add_action( 'admin_init', 'update_current_user_elementor_ai_setting' );
+
+
 /*  HIDE ELEMENTOR NOTICES AND LINKS IN PAGE VIEWS
 ________________________________________________________________________*/
 
@@ -536,7 +552,6 @@ function add_theme_enqueues() {
 	wp_deregister_script('jquery');
 	wp_enqueue_script( 'jquery', 'https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js', array(), '3.6.3', false);
    wp_enqueue_script( 'viewportHeight', get_template_directory_uri() . '/js/viewportHeight.js', array ( 'jquery' ), 1, true);
-   wp_enqueue_script( 'responsiveTables', get_template_directory_uri() . '/js/responsiveTables.js', array ( 'jquery' ), 1, true);
    wp_enqueue_script( 'jquery.matchHeight', get_template_directory_uri() . '/js/jquery.matchHeight.js', array ( 'jquery' ), 1, false);
    wp_enqueue_script( 'scrolltoHide', get_template_directory_uri() . '/js/scrolltoHide.js', array ( 'jquery' ), 1, false);
 }

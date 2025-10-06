@@ -112,7 +112,8 @@ body {
 }
 
 /* ELEMENTOR PROMOTIONS */
-.elementor-control-media__promotions {
+.elementor-control-media__promotions,
+.elementor-control.elementor-control-ally_heading_notice {
 	display: none !important;
 }
 
