@@ -210,6 +210,31 @@ function override_elementor_styles_css() {
 add_action( 'elementor/editor/after_enqueue_scripts', 'override_elementor_styles_css', 9999999 );
 
 
+/* HIDE ESTATIK BLACK FRIDAY / UPSELL BANNERS
+_____________________________________________________________________*/
+
+function wts_hide_estatik_notices() {
+    ?>
+    <style>
+        /* Black Friday promo */
+        .es-banner__wrap,
+        .notice.es-notice.estatik-notice--bf,
+        .estatik-notice--bf,
+        .es-notice.estatik-notice--bf {
+            display: none !important;
+        }
+
+        /* Any other Estatik marketing notices */
+        .notice.es-notice,
+        .es-notice {
+            display: none !important;
+        }
+    </style>
+    <?php
+}
+add_action( 'admin_print_styles', 'wts_hide_estatik_notices', 9999 );
+
+
 /*  REMOVES ELEMENTOR PROMOTIONAL ITEMS
 ________________________________________________________________________*/
 
